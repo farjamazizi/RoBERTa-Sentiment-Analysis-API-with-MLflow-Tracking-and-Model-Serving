@@ -1,0 +1,8 @@
+click>=8.1,<9
+fastapi<0.112
+flask>=2.3,<4
+mlflow
+numpy
+onnxruntime
+starlette<0.38
+transformers

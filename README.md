@@ -277,4 +277,14 @@ make ci
 
 - MLflow database: `web_app/mlflow.db`
 - MLflow artifacts: `web_app/mlruns`
+
+## Repository Notes
+
+Large local files are not committed to git:
+
+- `web_app/roberta-sequence-classification-9.onnx`
+- `web_app/mlruns/`
+- `web_app/mlflow.db`
+
+Keep those files locally when running the project. GitHub rejects files larger than 100 MB, so the model binary and generated MLflow outputs must stay outside the repository history.
 # RoBERTa-Sentiment-Analysis-API-with-MLflow-Tracking-and-Model-Serving
