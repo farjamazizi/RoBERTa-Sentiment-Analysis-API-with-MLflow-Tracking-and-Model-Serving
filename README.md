@@ -1,5 +1,7 @@
 # RoBERTa Sentiment API with MLflow
 
+[![CI](https://github.com/farjamazizi/RoBERTa-Sentiment-Analysis-API-with-MLflow-Tracking-and-Model-Serving/actions/workflows/ci.yml/badge.svg)](https://github.com/farjamazizi/RoBERTa-Sentiment-Analysis-API-with-MLflow-Tracking-and-Model-Serving/actions/workflows/ci.yml)
+
 This project exposes a Flask API for sentiment prediction using an ONNX RoBERTa model and uses MLflow for:
 
 - tracking prediction runs
