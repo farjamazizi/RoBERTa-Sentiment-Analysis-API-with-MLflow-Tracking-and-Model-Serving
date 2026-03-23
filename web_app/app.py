@@ -16,6 +16,9 @@ MODEL_PATH = BASE_DIR / "roberta-sequence-classification-9.onnx"
 MLRUNS_DIR = BASE_DIR / "mlruns"
 MLFLOW_DB_PATH = BASE_DIR / "mlflow.db"
 EXPERIMENT_NAME = "roberta-sentiment-api"
+tokenizer = None
+session = None
+model_load_error = None
 
 MLRUNS_DIR.mkdir(exist_ok=True)
 mlflow.set_tracking_uri(f"sqlite:///{MLFLOW_DB_PATH}")
@@ -36,8 +39,27 @@ def ensure_experiment():
 
 ensure_experiment()
 
-tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-session = onnxruntime.InferenceSession(str(MODEL_PATH))
+
+def load_model_components():
+    global tokenizer, session, model_load_error
+
+    if tokenizer is not None and session is not None:
+        return tokenizer, session
+
+    if not MODEL_PATH.exists():
+        model_load_error = f"Missing model file: {MODEL_PATH}"
+        return None, None
+
+    try:
+        tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+        session = onnxruntime.InferenceSession(str(MODEL_PATH))
+        model_load_error = None
+    except Exception as exc:
+        model_load_error = str(exc)
+        tokenizer = None
+        session = None
+
+    return tokenizer, session
 
 
 @app.route("/")
@@ -105,6 +127,19 @@ def list_runs():
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    tokenizer_instance, session_instance = load_model_components()
+
+    if tokenizer_instance is None or session_instance is None:
+        return (
+            jsonify(
+                {
+                    "error": "Model is not available on this machine",
+                    "details": model_load_error,
+                }
+            ),
+            503,
+        )
+
     payload = request.get_json(silent=True)
 
     if isinstance(payload, dict):
@@ -120,10 +155,10 @@ def predict():
     if not isinstance(text, str) or not text.strip():
         return jsonify({"error": "The 'text' value must be a non-empty string"}), 400
 
-    token_ids = tokenizer.encode(text, add_special_tokens=True)
+    token_ids = tokenizer_instance.encode(text, add_special_tokens=True)
     input_ids = np.asarray([token_ids[:512]], dtype=np.int64)
-    inputs = {session.get_inputs()[0].name: input_ids}
-    logits = session.run(None, inputs)[0]
+    inputs = {session_instance.get_inputs()[0].name: input_ids}
+    logits = session_instance.run(None, inputs)[0]
 
     predicted_class = int(np.argmax(logits, axis=1)[0])
     shifted = logits[0] - np.max(logits[0])

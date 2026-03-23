@@ -34,7 +34,7 @@ compile:
 	$(PYTHON) -m py_compile $(APP_FILE) $(LOG_MODEL_FILE)
 
 lint: compile
-	@test -f $(APP_DIR)/roberta-sequence-classification-9.onnx || (echo "Missing model file: $(APP_DIR)/roberta-sequence-classification-9.onnx" && exit 1)
+	@test -f $(APP_DIR)/roberta-sequence-classification-9.onnx || echo "Note: $(APP_DIR)/roberta-sequence-classification-9.onnx is not committed; prediction tests will run in degraded mode."
 	@test -f $(APP_DIR)/mlflow.db || echo "Note: $(APP_DIR)/mlflow.db will be created when the app or MLflow runs."
 
 test:

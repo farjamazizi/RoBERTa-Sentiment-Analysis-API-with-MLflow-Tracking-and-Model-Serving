@@ -287,4 +287,10 @@ Large local files are not committed to git:
 - `web_app/mlflow.db`
 
 Keep those files locally when running the project. GitHub rejects files larger than 100 MB, so the model binary and generated MLflow outputs must stay outside the repository history.
+
+In CI, the project runs without the local ONNX file. The app now handles that case gracefully:
+
+- `/` still works
+- `/runs` still works
+- `/predict` returns `503` until the model file is present locally
 # RoBERTa-Sentiment-Analysis-API-with-MLflow-Tracking-and-Model-Serving
