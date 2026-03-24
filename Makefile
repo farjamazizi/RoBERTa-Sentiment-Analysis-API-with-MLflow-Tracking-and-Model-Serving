@@ -6,11 +6,12 @@ LOG_MODEL_FILE := $(APP_DIR)/log_model.py
 SMOKE_TEST_FILE := scripts/smoke_test.py
 TRACKING_URI := sqlite:///$(APP_DIR)/mlflow.db
 MODEL_RUN_ID ?= 78447675102e40d38a3b5d4267717b11
+MODEL_NAME ?= roberta-sentiment
 APP_PORT ?= 5000
 MLFLOW_UI_PORT ?= 5001
 MODEL_PORT ?= 5003
 
-.PHONY: help install compile lint test ci run predict runs mlflow-ui log-model serve-model clean
+.PHONY: help install compile lint test ci run predict runs mlflow-ui log-model register-model serve-model clean
 
 help:
 	@echo "Available targets:"
@@ -24,6 +25,7 @@ help:
 	@echo "  make runs          Show recent tracked runs from the API"
 	@echo "  make mlflow-ui     Start the MLflow UI"
 	@echo "  make log-model     Log a serveable MLflow model"
+	@echo "  make register-model Register the logged MLflow model"
 	@echo "  make serve-model   Serve the logged MLflow model"
 	@echo "  make clean         Remove Python cache files"
 
@@ -58,6 +60,9 @@ mlflow-ui:
 
 log-model:
 	$(PYTHON) $(LOG_MODEL_FILE)
+
+register-model:
+	$(PYTHON) -c 'import mlflow; mlflow.set_tracking_uri("$(TRACKING_URI)"); mv = mlflow.register_model("runs:/$(MODEL_RUN_ID)/model", "$(MODEL_NAME)"); print(f"Registered {mv.name} version {mv.version}")'
 
 serve-model:
 	MLFLOW_TRACKING_URI=$(TRACKING_URI) mlflow models serve \

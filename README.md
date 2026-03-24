@@ -171,6 +171,26 @@ This script creates a new MLflow run that contains:
 
 This is the run type you can use with `mlflow models serve`.
 
+#### 3. Register the logged model
+
+Use the run id printed by `make log-model`:
+
+```bash
+make register-model MODEL_RUN_ID=YOUR_RUN_ID
+```
+
+By default, the registered model name is:
+
+```text
+roberta-sentiment
+```
+
+To override it:
+
+```bash
+make register-model MODEL_RUN_ID=YOUR_RUN_ID MODEL_NAME=YOUR_MODEL_NAME
+```
+
 ## Path 4: Serve the Logged Model
 
 Use the run id printed by `make log-model`.
